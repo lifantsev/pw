@@ -26,7 +26,7 @@ function check_gpg_unlocked() {
     mkfifo "$BLOCK_CHECK_GPG_FIFO"
     log I "made fifo '$BLOCK_CHECK_GPG_FIFO' to wait until gpg check is complete"
 
-    if gpg --pinentry-mode cancel --quiet -d "$GPG_TEST_FILE" | grep -q "^gpg:.*failed: Operation cancelled"; then
+    if gpg --pinentry-mode cancel --quiet -d "$GPG_TEST_FILE" 2>&1 | grep -q "^gpg:.*failed: Operation cancelled"; then
         log I "gpg key is locked, will have to be unlocked later"
         echo 0 > "$BLOCK_CHECK_GPG_FIFO"
     else
@@ -37,15 +37,18 @@ function check_gpg_unlocked() {
 
 # run gpgpass popup on loop until gpg shows its unlocked
 function unlock_gpg() {
+    log I "beginning manual unlock of gpg"
     while true; do
-        # run a shell to unlock gpg
-        rm /tmp/gpgpass > /dev/null
-        pypr show gpgpass
-        while [ ! -f "/tmp/gpgpass" ]; do sleep 0.05; done
-        rm /tmp/gpgpass > /dev/null
-
         # check if its unlocked
-        gpg --pinentry-mode cancel --quiet -d "$GPG_TEST_FILE" | grep -q "^gpg:.*failed: Operation cancelled" || break
+        gpg --pinentry-mode cancel --quiet -d "$GPG_TEST_FILE" 2>&1 | grep -q "^gpg:.*failed: Operation cancelled" || break
+
+        log I "gpg is locked, showing pypr dropdown"
+
+        # run a shell to unlock gpg
+        pypr show gpg # TODO THIS REQUIRES THE PYPR TO WORK AND EVERYTHING. EITHER WARN IN README OR FIX
+
+        # wait for unlock to complete
+        while [ -n "$(pgrep -f 'scratchpad .*pyprland/gpg.sh')" ]; do sleep 0.01; done
     done
 
     gpg_unlocked=1
@@ -179,7 +182,8 @@ function select_and_type_pass_entry() {
 
     # copy and paste password
     log I "copying password into clipboard"
-    wl-copy "$(pass "${folder##*/}/$entry")"
+    wl-copy "$(gpg --pinentry-mode cancel --quiet -d "$folder/$entry.gpg")"
+    # wl-copy "$(pass "${folder##*/}/$entry")"
 
     log I "typing password"
     case "$map_class" in
