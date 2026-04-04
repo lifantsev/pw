@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# NOTE potential optimization: could be cut time waiting for gpg to decrypt by preloading passwords asynchronously
 
 # comment/uncomment these to disable/enable logging
 
