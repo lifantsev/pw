@@ -108,7 +108,7 @@ Matches when the current window is a terminal, and the currently running command
 - `gpg`, to decrypt passwords
 - `wl-copy`, to copy passwords
 - `wtype`, to press 'Tab', 'Enter', 'Space' and 'Ctrl+V' to paste passwords
-- `awk`, to find matching lines in the mapfile
+- `awk`, to find lines in the mapfile that match the window's class & title
 
 ## Troubleshooting
 
