@@ -2,9 +2,9 @@
 
 # comment/uncomment these to disable/enable logging
 
-echo >> /tmp/pw.log
+# echo >> /tmp/pw.log
 function log() {
-    echo "$1 $(date +"%H:%M @ %S.%3N") $1 $2" >> /tmp/pw.log
+    # echo "$1 $(date +"%H:%M @ %S.%3N") $1 $2" >> /tmp/pw.log
     true
 }
 
