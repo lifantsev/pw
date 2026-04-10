@@ -11,7 +11,7 @@
     - 200ms of that is waiting for `gpg` to decrypt files
 - It's not a browser extension
     - Some browsers like `qutebrowser` don't support extensions
-    - Extensions are prone to [some security issues](https://cmpxchg8b.com/passmgrs.html))
+    - Extensions are prone to [some security issues](https://cmpxchg8b.com/passmgrs.html)
 - It can be used to enter passwords into any application - not just browsers
 
 ### Why not use `pw`
