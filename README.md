@@ -24,17 +24,21 @@ I also use qutebrowser, and have created a userscript that runs `echo "hint inpu
     - If not set, defaults to `gpg --quiet -d $PASSWORD_STORE_DIR/blank.gpg`
 
 # Usage
-## pw -h | pw --help
-Prints the contents of this README.
-## pw
+## no args
 Tries to match the current window's class & title against lines in the mapfile. If a match is found, enters credentials automatically based on the subfolder fragment and entry sequence on that line (see [configuration](#configuration) section). If no match is found, the user is prompted to select a subfolder, then an entry in it, and its contents will simply be typed.
-## pw --interactive
+## --interactive
 Similar to `pw` with no args but asks for user confirmation at every step. Even if a match in the [mapfile](#configuration) is found, the user is still prompted to choose a subfolder, except the matches are separated at the top of the list of choices. Then the user chooses an entry in the subfolder, which is typed.
+## --log
+Enables logging to `/tmp/pw.log`. This shows values of variables & control flow of the program.
+## -h | --help
+Prints the contents quickhelp.txt and exits.
+## --readme
+Prints the contents of this README and exits.
 
 # Configuration
 `pw` attempts to automatically enter the correct credentials based on window class & title. This behaviour is defined in the mapfile (`$PASSWORD_STORE_DIR/.map`). Each line in the mapfile defines one association between class/title and pass entries, as shown below (note that `pw` stops at the first line that matches the class & title, so put more specific regexes at the top of the mapfile)
 ```
-<class> /// <title regex> /// <pass subfolder fragment> /// <entry sequence> # optional comment
+<class> /// <title regex> /// <folder name fragment> /// <entry sequence> # optional comment
 ```
 
 ## Matching Class & Title
@@ -43,16 +47,16 @@ Class: One of 'browser', 'terminal' or 'other'. Windows are classified using the
 Title Regex: matched against window title using `awk` regex.
 
 ## Credential Entry:
-Pass Subfolder Fragment: The beginning of the name of a subfolder of `$PASSWORD_STORE_DIR`. If multiple subfolders share the given beginning, user will be prompted to choose one.
+Folder Name Fragment: The beginning of the name of a subfolder of `$PASSWORD_STORE_DIR`. If multiple subfolders share the given beginning, user will be prompted to choose one.
 
 Entry Sequence: a string of characters that tells `pw` how to enter your credentials, read character by character:
 - lowercase character -> selects an entry in the subfolder starting with that char (uses user input if there are multiple matches) & types its contents.
-- '.' -> allows the user to choose any entry & types its contents
-- '$' -> types contents of entry matching system hostname
-- '~' -> types contents of entry matching current user's username
-- 'T' -> presses the tab key
-- 'E' -> presses the enter key
-- ' ' -> presses the space key
+- `.` -> allows the user to choose any entry & types its contents
+- `$` -> types contents of entry matching system hostname
+- `~` -> types contents of entry matching current user's username
+- `T` -> presses the tab key
+- `E` -> presses the enter key
+- ` ` -> presses the space key
 
 ## Examples
 Here is an example line I have in my personal mapfile:
