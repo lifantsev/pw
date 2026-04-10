@@ -1,29 +1,27 @@
-'pw' turns the $PASSWORD_STORE_DIR into a full password manager with autofilling capabilities
+'pw' turns the $PASSWORD_STORE_DIR into a password manager with autofilling capabilities
 
-Usage =======================================================================================
-* noargs        : use mapfile to auto-type credentials, asking user only if ambiguous
-* --interactive : always ask for user confirmation even if mapfile is unambiguous
-* --log         : enable logging to /tmp/pw.log
-* --readme      : print the full project README.md
-* -h | --help   : print this help file
+=== Usage ===
+  noargs        : use mapfile to auto-type credentials, asking user only if ambiguous
+  --interactive : always ask for user confirmation even if mapfile is unambiguous
+  --log         : enable logging to /tmp/pw.log
+  --readme      : print the full project README.md
+  -h | --help   : print this help file
 
-Environment Variables =======================================================================
-* PASSWORD_STORE_DIR : must contain `blank.gpg`, `.map`, and folders containing gpg files
-* DMENU_PROGRAM      : something like `dmenu` `rofi` or `bemenu`
-* GET_WINDOW_CLASS   : a script that outputs the current window class
-* GET_WINDOW_TITLE   : a script that outputs the current window title
-* GPG_UNLOCK         : OPTIONAL: a script that unlocks and caches the gpg key
+=== Environment Variables ===
+  PASSWORD_STORE_DIR : must contain `blank.gpg`, `.map`, and folders with gpg files
+  DMENU_PROGRAM      : something like `dmenu` `rofi` or `bemenu`
+  GET_WINDOW_CLASS   : a script that outputs the current window class
+  GET_WINDOW_TITLE   : a script that outputs the current window title
+  GPG_UNLOCK         : OPTIONAL: a script that unlocks and caches the gpg key
 
-Dependencies ================================================================================
-* gpg
-* wl-copy
-* wtype
+=== Map File ===
+  $PASSWORD_STORE_DIR/.map : formatted as such
 
-Map File ====================================================================================
-* $PASSWORD_STORE_DIR/.map : formatted as such
-*
-* <browser|terminal|other> /// <title regex> /// <folder name fragment> /// <entry sequence>
-* browser /// LinkedIn .* Login /// linkedin /// uTpE
-* terminal /// ssh /// ssh /// .E
-*
-* See README.md for more detailed info
+  <class> /// <title regex> /// <folder name fragment> /// <entry sequence>
+  browser /// LinkedIn .* Login /// linkedin /// uTpE
+  terminal /// ssh /// ssh /// .E
+
+  See README.md for more detailed info
+
+=== Dependencies ===
+  gpg, wl-copy, wtype
