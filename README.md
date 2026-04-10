@@ -59,12 +59,12 @@ Prints the contents of this README and exits.
 - `$GET_WINDOW_TITLE` Should output window title
     - For hyprland: `hyprctl activewindow -j | jq -r .title`
     - I use: `t="$(hyprctl activewindow -j | jq -r .title)"; [[ "$(eval "$GET_WINDOW_CLASS")" == *"qutebrowser"* ]] && echo "${t/ - [^ ]*/} $(browser get-url | sed -e 's|^[^/]*//\([^/]*\)/.*|[\1]|')" || echo "$t"`
-        - This appends the url of the site to the title if the current window is qutebrowser, and leaves the title unchanged otherwise. This is nice because now I can match against exact urls in my [mapfile](#mapfile), instead of the plain tab name which is sometimes just `Login` and therefore ambiguous.
+        - This appends the url of the site to the title if the current window is qutebrowser, and leaves the title unchanged otherwise. This is nice because now I can match against exact urls in my [mapfile](#mapfile), instead of the plain title which is sometimes an ambiguous string like `Login`.
             - Note that [`browser`](https://github.com/lifantsev/nixos/blob/main/config/custom-scripts/browser.sh) is a script I wrote that interfaces with a [qutebrowser userscript](https://github.com/lifantsev/nixos/blob/main/home/qutebrowser/userscripts/urlupdater.sh) to fetch the url of the currently active window
-        - This can be replicated on chrome based browsers using the [url in title extension](https://chromewebstore.google.com/detail/url-in-title/ignpacbgnbnkaiooknalneoeladjnfgb).
+        - This can be replicated on chrome based browsers using the [url-in-title extension](https://chromewebstore.google.com/detail/url-in-title/ignpacbgnbnkaiooknalneoeladjnfgb).
 
-- `$GPG_UNLOCK` Optionally a script that allows the user to unlock their gpg key
-    - If not set, defaults to `gpg --quiet -d $PASSWORD_STORE_DIR/blank.gpg`
+- `$GPG_UNLOCK` Optionally a script that allows the user to unlock their gpg key.
+    - If not set, defaults to `gpg --quiet -d $PASSWORD_STORE_DIR/blank.gpg`.
 
 ## Mapfile
 `pw` attempts to automatically enter the correct credentials based on window class & title. This behaviour is defined in the mapfile (`$PASSWORD_STORE_DIR/.map`). Each line in the mapfile defines one association between class/title and pass entries, as shown below (note that `pw` stops at the first line that matches the class & title, so put more specific regexes at the top of the mapfile)
@@ -73,14 +73,14 @@ Prints the contents of this README and exits.
 ```
 
 ### Matching Class & Title
-Class: One of 'browser', 'terminal' or 'other'. Windows are classified using the environment variables `$BROWSER`, `$TERMINAL`, `$BROWSERS`, and `$TERMINALS`.
+`<class>`: One of 'browser', 'terminal' or 'other'. Windows are classified using the environment variables `$BROWSER`, `$TERMINAL`, `$BROWSERS`, and `$TERMINALS`.
 
-Title Regex: matched against window title using `awk` regex.
+`<title regex>`: matched against window title using `awk` regex.
 
 ### Credential Entry:
-Folder Name Fragment: The beginning of the name of a subfolder of `$PASSWORD_STORE_DIR`. If multiple subfolders share the given beginning, user will be prompted to choose one.
+`<folder name fragment>`: The beginning of the name of a subfolder of `$PASSWORD_STORE_DIR`. If multiple subfolders share the given beginning, user will be prompted to choose one.
 
-Entry Sequence: a string of characters that tells `pw` how to enter your credentials, read character by character:
+`<entry sequence>`: a string of characters that tells `pw` how to enter your credentials, read character by character:
 - lowercase character -> selects an entry in the subfolder starting with that char (uses user input if there are multiple matches) & types its contents.
 - `.` -> allows the user to choose any entry & types its contents
 - `$` -> types contents of entry matching system hostname
