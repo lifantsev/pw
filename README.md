@@ -20,6 +20,9 @@ I also use qutebrowser, and have created a userscript that runs `echo "hint inpu
 - `$GET_WINDOW_TITLE` Should output window title
     - For hyprland: `hyprctl activewindow -j | jq -r .title`
 
+- `$GPG_UNLOCK` Optionally a script that allows the user to unlock their gpg key
+    - If not set, defaults to `gpg --quiet -d $PASSWORD_STORE_DIR/blank.gpg`
+
 # Usage
 ## pw -h | pw --help
 Prints the contents of this README.

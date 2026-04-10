@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
 # TODO make the script usable more general:
-# currently depends on `browser get-url`, and `pypr show gpg`
+# currently depends on `browser get-url`
 
-# NOTE comment/uncomment these to disable/enable logging
-# echo >> /tmp/pw.log
+# echo >> /tmp/pw.log # NOTE
 function log() {
-    # echo "$1 $(date +"%H:%M @ %S.%3N") $1 $2" >> /tmp/pw.log
-    true
+    # echo "$1 $(date +"%H:%M @ %S.%3N") $1 $2" >> /tmp/pw.log # NOTE
+    [ "$1" == E ] && echo "pw error: $2"
 }
 
 log F "beggining of main.sh"
@@ -30,6 +29,15 @@ fi
 interactive=0
 if [ "$flag" == "--interactive" ]; then interactive=1; fi
 
+####################
+# ASSERT ENV STATE #
+####################
+log I "asserting state of environment"
+[ ! -d "$PASSWORD_STORE_DIR" ] && log E "please set \$PASSWORD_STORE_DIR to the .pass directory" && exit 1
+[ ! -f "$PASSWORD_STORE_DIR/blank.gpg" ] && log E "please create a dummy gpg file at \$PASSWORD_STORE_DIR/blank.gpg" && exit 1
+! command -v "$DMENU_PROGRAM" > /dev/null && log E "please set \$DMENU_PROGRAM to the name of a dmenu-like program" && exit 1
+[ -z "$GET_WINDOW_CLASS" ] && log E "please set \$GET_WINDOW_CLASS to a script that prints window class" && exit 1
+[ -z "$GET_WINDOW_TITLE" ] && log E "please set \$GET_WINDOW_TITLE to a script that prints window title" && exit 1
 
 #####################################
 # FUNCTIONS TO DEAL WITH GPG UNLOCK #
@@ -72,11 +80,9 @@ function unlock_gpg() {
 
         log I "gpg is locked, showing pypr dropdown"
 
-        # run a shell to unlock gpg
-        pypr show gpg # TODO THIS REQUIRES THE PYPR TO WORK AND EVERYTHING. EITHER WARN IN README OR FIX
-
-        # wait for unlock to complete
-        while [ -n "$(pgrep -f 'scratchpad .*pyprland/gpg.sh')" ]; do sleep 0.01; done
+        # run the script to unlock gpg
+        if [ -n "$GPG_UNLOCK" ]; then eval "$GPG_UNLOCK"
+        else gpg --quiet -d "$GPG_TEST_FILE" &> /dev/null; fi
     done
 
     gpg_unlocked=1
