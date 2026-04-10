@@ -14,13 +14,19 @@ I also use qutebrowser, and have created a userscript that runs `echo "hint inpu
 
 - `$DMENU_PROGRAM` Should be set to the name of a program like `dmenu`, `rofi`, or `bemenu`.
 
+- `$GET_WINDOW_CLASS` Should be a script that outputs the current window's class.
+    - For hyprland: `hyprctl activewindow -j | jq -r .class`
+
+- `$GET_WINDOW_TITLE` Should output window title
+    - For hyprland: `hyprctl activewindow -j | jq -r .title`
+
 # Usage
 ## pw -h | pw --help
 Prints the contents of this README.
 ## pw
-Tries to match the current window's class & title against lines in the mapfile. If a match is found, enters credentials automatically based on the subfolder fragment and entry sequence on that line (see [Configuration](#configuration) section). If no match is found, the user is prompted to select a subfolder and an entry in that subfolder, whose contents will simply be typed.
+Tries to match the current window's class & title against lines in the mapfile. If a match is found, enters credentials automatically based on the subfolder fragment and entry sequence on that line (see [configuration](#configuration) section). If no match is found, the user is prompted to select a subfolder, then an entry in it, and its contents will simply be typed.
 ## pw --interactive
-Similar to `pw` with no args but asks for user confirmation at every step. Even if a match in the mapfile is found, the user is still prompted to choose a subfolder, except the matches are at the top of the list of choices. Then the user chooses an entry in the subfolder, which is typed (the entry sequence is ignored).
+Similar to `pw` with no args but asks for user confirmation at every step. Even if a match in the [mapfile](#configuration) is found, the user is still prompted to choose a subfolder, except the matches are separated at the top of the list of choices. Then the user chooses an entry in the subfolder, which is typed.
 
 # Configuration
 `pw` attempts to automatically enter the correct credentials based on window class & title. This behaviour is defined in the mapfile (`$PASSWORD_STORE_DIR/.map`). Each line in the mapfile defines one association between class/title and pass entries, as shown below (note that `pw` stops at the first line that matches the class & title, so put more specific regexes at the top of the mapfile)
@@ -59,3 +65,5 @@ terminal /// ssh /// ssh /// .E
 Matches when the current window is a terminal, and the currently running command contains ssh. Let's say the `ssh` subfolder contains multiple entries (maybe passwords for different machines I frequently ssh into). Then when I run `pw`, I will be prompted to choose one of these passwords, it will be typed and the enter key will be hit, logging me into the remote connection.
 
 # Troubleshooting
+
+TODO

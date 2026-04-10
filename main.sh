@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # TODO make the script usable more general:
-# currently depends on `hyprctl`, `browser get-url`, and `pypr show gpg`
+# currently depends on `browser get-url`, and `pypr show gpg`
 
 # NOTE comment/uncomment these to disable/enable logging
 # echo >> /tmp/pw.log
@@ -91,20 +91,20 @@ check_gpg_unlocked &
 #######################
 log I "fetching window class & title"
 
-hypr_class="$(hyprctl activewindow -j | jq -r .class)"
-hypr_title="$(hyprctl activewindow -j | jq -r .title)"
+window_class="$(eval "$GET_WINDOW_CLASS")"
+window_title="$(eval "$GET_WINDOW_TITLE")"
 
-log . "hypr_title='$hypr_title'"
-log . "hypr_class='$hypr_class'"
+log . "window_title='$window_title'"
+log . "window_class='$window_class'"
 
-echo -e "$BROWSER\n$BROWSERS"   | grep -qi "$hypr_class" && map_class="browser"
-echo -e "$TERMINAL\n$TERMINALS" | grep -qi "$hypr_class" && map_class="terminal"
+echo -e "$BROWSER\n$BROWSERS"   | grep -qi "$window_class" && map_class="browser"
+echo -e "$TERMINAL\n$TERMINALS" | grep -qi "$window_class" && map_class="terminal"
 [ -z "$map_class" ] && map_class="other"
 
-if [[ "$hypr_class" == *"qutebrowser"* ]]; then
-    map_title="${hypr_title/ - [^ ]*/} $(browser get-url | sed -e 's|^[^/]*//\([^/]*\)/.*|[\1]|')" # the sed expression takes everything between the first // and the next / and puts it in brackets
+if [[ "$window_class" == *"qutebrowser"* ]]; then
+    map_title="${window_title/ - [^ ]*/} $(browser get-url | sed -e 's|^[^/]*//\([^/]*\)/.*|[\1]|')" # the sed expression takes everything between the first // and the next / and puts it in brackets
 else
-    map_title="$hypr_title"
+    map_title="$window_title"
 fi
 
 log . "map_title='$map_title'"
