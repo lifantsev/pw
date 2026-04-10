@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# TODO remove ugly error messages when user intentionally provides no input
-
 MAP_FILE_SEPARATOR=" /// "
 MAP_FILE="$PASSWORD_STORE_DIR/.map"
 
