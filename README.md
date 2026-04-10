@@ -1,6 +1,6 @@
 ## Description
 
-`pw` is a simple bash script that turns the `$PASSWORD_STORE_DIR` into a convenient password manager with autofilling capabilities. Navigate to a login page, run `pw`, and the correct credentials will automatically be typed and entered, instantly logging you in. It looks at the current window's class and title to decide which password file to decrypt and type (this behaviour is [fully configurable](#mapfile)).
+`pw` is a simple bash script that turns the `$PASSWORD_STORE_DIR` into a convenient password manager with autofilling capabilities. Navigate to a login page, run `pw`, and the correct credentials will automatically be typed and entered, instantly logging you in. It looks at the current window's class and title to decide which password files to decrypt and type (this behaviour is [fully configurable](#mapfile)).
 - Note that although `pw` is great to use along with `pass`, it does not depend on it. All you need is a password-store containing gpg files.
 
 ### Why use `pw`?
@@ -23,9 +23,9 @@
     - `$PASSWORD_STORE_DIR/spotify/` containing `username.gpg` and `password.gpg`
 
 ### Alternatives
-- [tessen](https://github.com/ayushnix/tessen): a more mature project, but it doesn't automatically detect the website/application.
-- [browserpass](https://github.com/browserpass/browserpass-extension): comes with the advantages and disadvantages of being a browser extension.
-- [awesome-password-store](https://github.com/tijn/awesome-password-store): a list of extensions and interfaces for `pass`.
+- [tessen](https://github.com/ayushnix/tessen): a more mature project, but it doesn't automatically detect the website/application
+- [browserpass](https://github.com/browserpass/browserpass-extension): comes with the advantages and disadvantages of being a browser extension
+- [awesome-password-store](https://github.com/tijn/awesome-password-store): a list of extensions and interfaces for `pass`
 
 ## Installation
 Simply clone this repo somewhere on your machine, `chmod +x` the `main.sh` file, and run `main.sh` anytime you want to run the program. You can also use an alias or add to the $PATH if it's convenient.

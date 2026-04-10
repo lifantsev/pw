@@ -15,7 +15,7 @@
   GPG_UNLOCK         : OPTIONAL: a script that unlocks and caches the gpg key
 
 === Map File ===
-  $PASSWORD_STORE_DIR/.map : formatted as such
+  $PASSWORD_STORE_DIR/.map : formatted as follows
 
   <class> /// <title regex> /// <folder name fragment> /// <entry sequence>
   browser /// LinkedIn .* Login /// linkedin /// uTpE
@@ -24,4 +24,4 @@
   See README.md for more detailed info
 
 === Dependencies ===
-  gpg, wl-copy, wtype
+  gpg, wl-copy, wtype, awk
