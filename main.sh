@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-# comment/uncomment these to disable/enable logging
+# TODO make the script usable more general:
+# currently depends on `hyprctl`, `browser get-url`, and `pypr show gpg`
 
+# TODO bat readme instead of catting (if available)
+
+# NOTE comment/uncomment these to disable/enable logging
 # echo >> /tmp/pw.log
 function log() {
     # echo "$1 $(date +"%H:%M @ %S.%3N") $1 $2" >> /tmp/pw.log
@@ -9,6 +13,18 @@ function log() {
 }
 
 log F "beggining of main.sh"
+
+######################
+# SETUP VARS & FLAGS #
+######################
+MAP_FILE_SEPARATOR=" /// "
+MAP_FILE="$PASSWORD_STORE_DIR/.map"
+
+flag="$1"
+if [ "$flag" == "-h" ] || [ "$flag" == "--help" ]; then cat "$(dirname "$0")/README.md"; exit; fi
+interactive=0
+if [ "$flag" == "--interactive" ]; then interactive=1; fi
+
 
 #####################################
 # FUNCTIONS TO DEAL WITH GPG UNLOCK #
@@ -34,6 +50,14 @@ function check_gpg_unlocked() {
     fi
 }
 
+# unblock the fifo & remove it, then exit
+# (because just exiting will leave the above function hanging on the print to fifo)
+function clean_fifo_exit() {
+    cat "$BLOCK_CHECK_GPG_FIFO" > /dev/null
+    rm "$BLOCK_CHECK_GPG_FIFO" > /dev/null
+    exit
+}
+
 # run gpgpass popup on loop until gpg shows its unlocked
 function unlock_gpg() {
     log I "beginning manual unlock of gpg"
@@ -56,17 +80,6 @@ function unlock_gpg() {
 
 log I "checking lock status of gpg key in background"
 check_gpg_unlocked &
-
-######################
-# SETUP VARS & FLAGS #
-######################
-MAP_FILE_SEPARATOR=" /// "
-MAP_FILE="$PASSWORD_STORE_DIR/.map"
-
-flag="$1"
-if [ "$flag" == "-h" ] || [ "$flag" == "--help" ]; then cat "$(dirname "$0")/README.md"; exit; fi
-interactive=0
-if [ "$flag" == "-i" ] || [ "$flag" == "--interactive" ]; then interactive=1; fi
 
 #######################
 # FETCH CLASS & TITLE #
@@ -139,8 +152,8 @@ fi
 
 log . "pass_entry_folder='$pass_entry_folder'"
 
-[ -z "$pass_entry_folder" ] && log E "wasnt able to choose a pass folder, exiting" && exit
-[ "$pass_entry_folder" == "$PASSWORD_STORE_DIR/" ] && log E "wasnt able to choose a pass folder, exiting" && exit
+[ -z "$pass_entry_folder" ] && log E "wasnt able to choose a pass folder, exiting" && clean_fifo_exit
+[ "$pass_entry_folder" == "$PASSWORD_STORE_DIR/" ] && log E "wasnt able to choose a pass folder, exiting" && clean_fifo_exit
 
 ######################################
 # DEFINE FUNCTION TO TYPE PASS ENTRY #
@@ -166,7 +179,7 @@ function select_and_type_pass_entry() {
     else entry="$(printf '%s\n' "${entry_matches[@]##*/}" | sed 's|.gpg$||' | $DMENU_PROGRAM)"
     fi
 
-    [ ! -f "$folder/$entry.gpg" ] && log E "ERROR NOT A FILE: '$folder/$entry.gpg'" && exit
+    [ ! -f "$folder/$entry.gpg" ] && log E "ERROR NOT A FILE: '$folder/$entry.gpg'" && clean_fifo_exit
     log . "entry='$entry'"
 
     # wait for async gpg unlock check to complete
