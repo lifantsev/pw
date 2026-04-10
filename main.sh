@@ -2,9 +2,9 @@
 
 # comment/uncomment these to disable/enable logging
 
-# echo >> /tmp/pw.log
+echo >> /tmp/pw.log
 function log() {
-    # echo "$1 $(date +"%H:%M @ %S.%3N") $1 $2" >> /tmp/pw.log
+    echo "$1 $(date +"%H:%M @ %S.%3N") $1 $2" >> /tmp/pw.log
     true
 }
 
@@ -121,7 +121,9 @@ pass_entry_folder_matches=( "$PASSWORD_STORE_DIR/$pass_entry_folder_fragment"* )
 if (( interactive )); then
     all_pass_entry_folders=( "$PASSWORD_STORE_DIR/"* )
 
-    if [ ${#pass_entry_folder_matches[@]} == 0 ]; then
+    # if the fragment has no matches, or matches everything, just use default entries
+    # otherwise, add the matches as a separate section to choose from
+    if [ ${#pass_entry_folder_matches[@]} == 0 ] || [ ${#pass_entry_folder_matches[@]} == ${#all_pass_entry_folders[@]} ]; then
         pass_entry_folder_matches=( "${all_pass_entry_folders[@]}" )
     else
         pass_entry_folder_matches=( "${pass_entry_folder_matches[@]}" "" "${all_pass_entry_folders[@]}" )
