@@ -1,21 +1,26 @@
 #!/usr/bin/env bash
 
-# echo >> /tmp/pw.log # NOTE
-function log() {
-    # echo "$1 $(date +"%H:%M @ %S.%3N") $1 $2" >> /tmp/pw.log # NOTE
-    [ "$1" == E ] && echo "pw error: $2"
-}
-
-log F "beggining of main.sh"
-
-######################
-# SETUP VARS & FLAGS #
-######################
 MAP_FILE_SEPARATOR=" /// "
 MAP_FILE="$PASSWORD_STORE_DIR/.map"
 
-flag="$1"
-if [ "$flag" == "-h" ] || [ "$flag" == "--help" ]; then
+################
+# HANDLE FLAGS #
+################
+flag_interactive=0
+flag_help=0
+flag_log=0
+
+while [ -n "$1" ]; do
+    case "$1" in
+        "-h"|"--help") flag_help=1 ;;
+        "--log") flag_log=1 ;;
+        "--interactive") flag_interactive=1 ;;
+    esac
+
+    shift
+done
+
+if (( flag_help )); then
     if command -v bat > /dev/null
     then bat "$(dirname "$0")/README.md"
     else cat "$(dirname "$0")/README.md"
@@ -23,13 +28,18 @@ if [ "$flag" == "-h" ] || [ "$flag" == "--help" ]; then
     exit
 fi
 
-interactive=0
-if [ "$flag" == "--interactive" ]; then interactive=1; fi
+(( flag_log )) && echo >> /tmp/pw.log
+function log() {
+    (( flag_log )) && echo "$1 $(date +"%H:%M @ %S.%3N") $1 $2" >> /tmp/pw.log
+    [ "$1" == E ] && echo "pw error: $2"
+}
+
+log F "beggining of main.sh"
 
 ####################
 # ASSERT ENV STATE #
 ####################
-log I "asserting state of environment"
+log . "asserting state of environment"
 [ ! -d "$PASSWORD_STORE_DIR" ] && log E "please set \$PASSWORD_STORE_DIR to the .pass directory" && exit 1
 [ ! -f "$PASSWORD_STORE_DIR/blank.gpg" ] && log E "please create a dummy gpg file at \$PASSWORD_STORE_DIR/blank.gpg" && exit 1
 ! command -v "$DMENU_PROGRAM" > /dev/null && log E "please set \$DMENU_PROGRAM to the name of a dmenu-like program" && exit 1
@@ -124,7 +134,7 @@ log . "awk_result='$awk_result'"
 
 pass_entry_folder_fragment="${awk_result/ ||| */}"
 pass_entry_sequence="${awk_result/* ||| /}"
-if [ -z "$pass_entry_sequence" ] || (( interactive )); then pass_entry_sequence="."; fi
+if [ -z "$pass_entry_sequence" ] || (( flag_interactive )); then pass_entry_sequence="."; fi
 
 log . "pass_entry_folder_fragment='$pass_entry_folder_fragment'"
 log . "pass_entry_sequence='$pass_entry_sequence'"
@@ -135,7 +145,7 @@ log . "pass_entry_sequence='$pass_entry_sequence'"
 
 pass_entry_folder_matches=( "$PASSWORD_STORE_DIR/$pass_entry_folder_fragment"* )
 
-if (( interactive )); then
+if (( flag_interactive )); then
     all_pass_entry_folders=( "$PASSWORD_STORE_DIR/"* )
 
     # if the fragment has no matches, or matches everything, just use default entries
