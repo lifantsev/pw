@@ -223,7 +223,6 @@ for (( i=0; i<${#pass_entry_sequence}; i++ )); do
 
         'T') type_key Tab ;;
         'E') type_key Return ;;
-        'R') type_key Return ;;
         ' ') type_key Space ;;
     esac
 done
