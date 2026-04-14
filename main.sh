@@ -3,6 +3,9 @@
 MAP_FILE_SEPARATOR=" /// "
 MAP_FILE="$PASSWORD_STORE_DIR/.map"
 
+# TODO rename to pass-autotype
+# TODO disable gpg precheck, its stupid & wasteful
+
 ################
 # HANDLE FLAGS #
 ################
@@ -55,64 +58,6 @@ log . "asserting state of environment"
 ! command -v gpg > /dev/null && log E "gpg is a dependency, please install it" && exit 1
 ! command -v wl-copy > /dev/null && log E "wl-copy is a dependency, please install it" && exit 1
 ! command -v wtype > /dev/null && log E "wtype is a dependency, please install it" && exit 1
-
-#####################################
-# FUNCTIONS TO DEAL WITH GPG UNLOCK #
-#####################################
-
-GPG_TEST_FILE="$PASSWORD_STORE_DIR/blank.gpg"
-BLOCK_CHECK_GPG_FIFO=$(mktemp -u /tmp/pw_gpg_check_block_XXXXXX.fifo)
-gpg_unlocked=-1
-
-[ ! -f "$GPG_TEST_FILE" ] && log E "we expect an encrypted .gpg at '$GPG_TEST_FILE'" && exit
-
-# check if gpg is unlocked, and print result to a blocking fifo
-function check_gpg_unlocked() {
-    mkfifo "$BLOCK_CHECK_GPG_FIFO"
-    log G "made fifo '$BLOCK_CHECK_GPG_FIFO' to wait until gpg check is complete"
-
-    if gpg --pinentry-mode cancel --quiet -d "$GPG_TEST_FILE" 2>&1 | grep -q "^gpg:.*failed: Operation cancelled"; then
-        log G "gpg key is locked, will have to be unlocked later"
-        echo 0 > "$BLOCK_CHECK_GPG_FIFO"
-    else
-        log G "gpg key is unlocked"
-        echo 1 > "$BLOCK_CHECK_GPG_FIFO"
-    fi
-
-    log G "gpg check has completed"
-}
-
-# unblock the fifo & remove it, then exit
-# (because just exiting will leave the above function hanging on the print to fifo)
-function clean_fifo_exit() {
-    log I "cleaning fifo (to exit)"
-    cat "$BLOCK_CHECK_GPG_FIFO" > /dev/null
-    rm "$BLOCK_CHECK_GPG_FIFO" > /dev/null
-
-    log I "exiting... bye bye..."
-    exit
-}
-
-# run gpgpass popup on loop until gpg shows its unlocked
-function unlock_gpg() {
-    log I "beginning manual unlock of gpg"
-    while true; do
-        # check if its unlocked
-        gpg --pinentry-mode cancel --quiet -d "$GPG_TEST_FILE" 2>&1 | grep -q "^gpg:.*failed: Operation cancelled" || break
-
-        log I "gpg is locked, showing pypr dropdown"
-
-        # run the script to unlock gpg
-        if [ -n "$GPG_UNLOCK" ]; then eval "$GPG_UNLOCK"
-        else gpg --quiet -d "$GPG_TEST_FILE" &> /dev/null; fi
-    done
-
-    gpg_unlocked=1
-    log I "unlocked gpg key manually"
-}
-
-log G "checking lock status of gpg key in background"
-check_gpg_unlocked &
 
 #######################
 # FETCH CLASS & TITLE #
@@ -212,19 +157,6 @@ function select_and_type_pass_entry() {
     if [ ! -f "$folder/$entry.gpg" ]; then log E "selected pass entry somehow isn't a valid file: '$folder/$entry.gpg', exiting" ; clean_fifo_exit ; fi
     log . "entry='$entry'"
 
-    # wait for async gpg unlock check to complete
-    if [ "$gpg_unlocked" = -1 ]; then
-        log I "BLOCKED: waiting for check_gpg_unlocked() to exit"
-        gpg_unlocked="$(cat "$BLOCK_CHECK_GPG_FIFO")" # wait for check_gpg_unlocked to finish
-        log I "UNBLOCKED"
-    fi
-
-    # if locked, unlock
-    if (( ! gpg_unlocked )); then
-        log I "gpg is locked, unlocking manually"
-        unlock_gpg;
-    fi
-
     # copy and paste password
     log I "copying password into clipboard"
     wl-copy "$(gpg --pinentry-mode cancel --quiet -d "$folder/$entry.gpg")" 2>/dev/null
@@ -270,15 +202,13 @@ for (( i=0; i<${#pass_entry_sequence}; i++ )); do
     esac
 done
 
-log I "cleaning up fifo '$BLOCK_CHECK_GPG_FIFO'"
-rm "$BLOCK_CHECK_GPG_FIFO" > /dev/null
-
 function clear_clip() {
     log I "clearing clipboard to help with security"
     sleep 0.5
     wl-copy "cleared by pw.sh" 2>/dev/null
+    return 0
 }
 
 clear_clip &
-
 log F "end of main.sh"
+exit 0

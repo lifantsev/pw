@@ -7,7 +7,7 @@
 - It automatically fills in all credentials with no user input required (as long as you [set up rules in the mapfile](#mapfile))
     - If you haven't set up a rule, you manually choose a password store entry
 - It's as fast as possible without fully removing control from the user (all you do is run it)
-    - On my machine `pw` takes ~350ms to automatically detect the website, type username and password, and hit enter
+    - On my machine `pw` takes ~300ms to automatically detect the website, type username and password, and hit enter
     - 200ms of that is waiting for `gpg` to decrypt files
 - It can be used to enter passwords into any application - not just browsers
 - It's not a browser extension
@@ -49,9 +49,6 @@ Prints the contents of this README and exits.
 - `$PASSWORD_STORE_DIR` Should be set to a directory containing folders that contain login credentials.
     - For example `$PASSWORD_STORE_DIR/google/pass.gpg` would be your google password.
 
-- `$PASSWORD_STORE_DIR/blank.gpg` Should exist and be encrypted with the same gpg key as everything else.
-    - You can create it like so: `echo blank | gpg -e -r my-gpg-id > $PASSWORD_STORE_DIR/blank.gpg`
-
 - `$DMENU_PROGRAM` Should be set to the name of a program like `dmenu`, `rofi`, or `bemenu`.
 
 - `$GET_WINDOW_CLASS` Should be a script that outputs the current window's class.
@@ -63,9 +60,6 @@ Prints the contents of this README and exits.
         - This appends the url of the site to the title if the current window is qutebrowser, and leaves the title unchanged otherwise. This is nice because now I can match against exact urls in my [mapfile](#mapfile), instead of the plain title which is sometimes an ambiguous string like `Login`.
             - Note that [`browser`](https://github.com/lifantsev/nixos/blob/main/config/custom-scripts/browser.sh) is a script I wrote that interfaces with a [qutebrowser userscript](https://github.com/lifantsev/nixos/blob/main/home/qutebrowser/userscripts/urlupdater.sh) to fetch the url of the currently active window
         - This can be replicated on chrome based browsers using the [url-in-title extension](https://chromewebstore.google.com/detail/url-in-title/ignpacbgnbnkaiooknalneoeladjnfgb).
-
-- `$GPG_UNLOCK` Optionally a script that allows the user to unlock their gpg key.
-    - If not set, defaults to `gpg --quiet -d $PASSWORD_STORE_DIR/blank.gpg`.
 
 ## Mapfile
 `pw` attempts to automatically enter the correct credentials based on window class & title. This behaviour is defined in the mapfile (`$PASSWORD_STORE_DIR/.map`). Each line in the mapfile defines one association between class/title and pass entries, as shown below (note that `pw` stops at the first line that matches the class & title, so put more specific regexes at the top of the mapfile)
