@@ -23,9 +23,9 @@
     - `$PASSWORD_STORE_DIR/spotify/` containing `username.gpg` and `password.gpg`
 
 ### Alternatives
+- [wosc/pass-autotype](https://github.com/wosc/pass-autotype) uses xdotool -> isn't wayland compatible
 - [tessen](https://github.com/ayushnix/tessen): a more mature project, but it doesn't automatically detect the website/application
 - [browserpass](https://github.com/browserpass/browserpass-extension): comes with the advantages and disadvantages of being a browser extension
-- [awesome-password-store](https://github.com/tijn/awesome-password-store): a list of extensions and interfaces for `pass`
 
 ## Installation
 Simply clone this repo somewhere on your machine, `chmod +x` the `main.sh` file, and run `main.sh` anytime you want to run the program. You can also use an alias or add to the $PATH if it's convenient.
@@ -56,10 +56,7 @@ Prints the contents of this README and exits.
 
 - `$GET_WINDOW_TITLE` Should output window title
     - For hyprland: `hyprctl activewindow -j | jq -r .title`
-    - I use: `t="$(hyprctl activewindow -j | jq -r .title)"; [[ "$(eval "$GET_WINDOW_CLASS")" == *"qutebrowser"* ]] && echo "${t/ - [^ ]*/} $(browser get-url | sed -e 's|^[^/]*//\([^/]*\)/.*|[\1]|')" || echo "$t"`
-        - This appends the url of the site to the title if the current window is qutebrowser, and leaves the title unchanged otherwise. This is nice because now I can match against exact urls in my [mapfile](#mapfile), instead of the plain title which is sometimes an ambiguous string like `Login`.
-            - Note that [`browser`](https://github.com/lifantsev/nixos/blob/main/config/custom-scripts/browser.sh) is a script I wrote that interfaces with a [qutebrowser userscript](https://github.com/lifantsev/nixos/blob/main/home/qutebrowser/userscripts/urlupdater.sh) to fetch the url of the currently active window
-        - This can be replicated on chrome based browsers using the [url-in-title extension](https://chromewebstore.google.com/detail/url-in-title/ignpacbgnbnkaiooknalneoeladjnfgb).
+        - Note that for matching browser pages it's useful to use something like [url-in-title extension](https://chromewebstore.google.com/detail/url-in-title/ignpacbgnbnkaiooknalneoeladjnfgb).
 
 ## Mapfile
 `pass-autotype` attempts to automatically enter the correct credentials based on window class & title. This behaviour is defined in the mapfile (`$PASSWORD_STORE_DIR/.map`). Each line in the mapfile defines one association between class/title and pass entries, as shown below (note that `pass-autotype` stops at the first line that matches the class & title, so put more specific regexes at the top of the mapfile)
